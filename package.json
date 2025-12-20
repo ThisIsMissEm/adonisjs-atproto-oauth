@@ -1,0 +1,105 @@
+{
+  "name": "@thisismissem/adonisjs-atproto-tap",
+  "description": "Adonis.js provider for AT Protocol Tap Client",
+  "version": "1.0.2",
+  "engines": {
+    "node": ">=20.6.0"
+  },
+  "packageManager": "pnpm@10.26.1+sha512.664074abc367d2c9324fdc18037097ce0a8f126034160f709928e9e9f95d98714347044e5c3164d65bd5da6c59c6be362b107546292a8eecb7999196e5ce58fa",
+  "type": "module",
+  "files": [
+    "build/src",
+    "build/providers",
+    "build/services",
+    "build/stubs",
+    "build/index.d.ts",
+    "build/index.js",
+    "build/configure.d.ts",
+    "build/configure.js"
+  ],
+  "exports": {
+    ".": "./build/index.js",
+    "./provider": "./build/providers/tap_provider.js",
+    "./services/tap": "./build/services/tap.js",
+    "./services/indexer": "./build/services/indexer.js",
+    "./types": "./build/src/types.js"
+  },
+  "scripts": {
+    "changeset": "changeset",
+    "clean": "del-cli build",
+    "copy:templates": "copyfiles \"stubs/**/*.stub\" build",
+    "typecheck": "tsc --noEmit",
+    "lint": "pnpm run typecheck && eslint .",
+    "format": "prettier --write .",
+    "format:write": "prettier --ignore-path .gitignore --write",
+    "quick:test": "node --import=./tsnode.esm.js --enable-source-maps bin/test.ts",
+    "pretest": "pnpm run lint",
+    "test": "c8 pnpm run quick:test",
+    "types:check": "attw --pack . --profile esm-only --profile node16 --ignore-rules=cjs-resolves-to-esm",
+    "prebuild": "pnpm run lint && pnpm run clean",
+    "build": "tsc",
+    "postbuild": "pnpm run copy:templates",
+    "version-packages": "changeset version && pnpm run format:write CHANGELOG.md && git add package.json CHANGELOG.md",
+    "release": "pnpm run build && changeset publish",
+    "prepublishOnly": "pnpm run build"
+  },
+  "keywords": [
+    "adonisjs",
+    "adonis",
+    "atproto",
+    "at protocol",
+    "tap"
+  ],
+  "author": "Emelia Smith",
+  "license": "MIT",
+  "contributors": [
+    {
+      "name": "Emelia Smith",
+      "url": "https://github.com/thisismissem"
+    }
+  ],
+  "repository": {
+    "url": "https://github.com/ThisIsMissEm/adonisjs-atproto-tap"
+  },
+  "devDependencies": {
+    "@adonisjs/assembler": "^7.8.2",
+    "@adonisjs/core": "^6.12.0",
+    "@adonisjs/eslint-config": "2.1.2",
+    "@adonisjs/prettier-config": "^1.4.0",
+    "@adonisjs/tsconfig": "^1.3.0",
+    "@arethetypeswrong/cli": "^0.18.2",
+    "@changesets/changelog-github": "^0.5.2",
+    "@changesets/cli": "^2.29.8",
+    "@japa/assert": "^4.2.0",
+    "@japa/runner": "^5.0.0",
+    "@swc/core": "^1.6.3",
+    "@types/node": "^22.19.3",
+    "c8": "^10.1.2",
+    "copyfiles": "^2.4.1",
+    "del-cli": "^7.0.0",
+    "eslint": "^9.15.0",
+    "np": "^10.0.6",
+    "prettier": "^3.3.2",
+    "ts-node-maintained": "^10.9.4",
+    "typescript": "^5.4.5",
+    "yalc": "1.0.0-pre.53"
+  },
+  "peerDependencies": {
+    "@adonisjs/core": "^6.2.0",
+    "@atproto/tap": "^0.0.2"
+  },
+  "publishConfig": {
+    "access": "public",
+    "tag": "latest"
+  },
+  "c8": {
+    "reporter": [
+      "text",
+      "html"
+    ],
+    "exclude": [
+      "tests/**"
+    ]
+  },
+  "prettier": "@adonisjs/prettier-config"
+}
