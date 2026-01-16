@@ -55,17 +55,14 @@ export class OAuthContext {
   }> {
     const params = this.ctx.request.qs()
     const result = await this.oauth.client.callback(new URLSearchParams(params))
+
     return {
       user: new AtProtoUser(result.session),
       state: result.state,
     }
   }
 
-  async jwks() {
-    return this.ctx.response.json(this.oauth.client.jwks)
-  }
-
-  async clientMetadata() {
-    return this.ctx.response.json(this.oauth.client.clientMetadata)
+  get clientMetadata() {
+    return this.oauth.client.clientMetadata
   }
 }
