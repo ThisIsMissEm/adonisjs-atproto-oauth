@@ -1,11 +1,19 @@
-# AdonisJS AT Protocol Tap
+# Adonis.js AT Protocol OAuth Package
 
-This package provides a small [Adonis.js](https://adonisjs.com) provider and services for `@atproto/tap`, which allows interacting with [Tap](https://docs.bsky.app/blog/introducing-tap) for AT Protocol development.
+This package provides a small [Adonis.js](https://adonisjs.com) provider and scaffolding for building applications quicking with [AT Protocol](https://atproto.com) OAuth.
+
+## Requirements
+
+The following packages should already be installed and configured in your project:
+
+- @adonisjs/lucid
+- @adonisjs/auth using session guard: [Documentation](https://docs.adonisjs.com/guides/authentication/session-guard)
+- @vinejs/vine
 
 ## Installation
 
 ```sh
-node ace add @thisismissem/adonisjs-atproto-tap
+node ace add @thisismissem/adonisjs-atproto-oauth
 ```
 
 ### Configuring
@@ -13,67 +21,84 @@ node ace add @thisismissem/adonisjs-atproto-tap
 If you didn't use `node ace add` you can later run the configuration using:
 
 ```sh
-node ace configure @thisismissem/adonisjs-atproto-tap
+node ace configure @thisismissem/adonisjs-atproto-oauth
 ```
 
-## Indexer
+### Next steps
 
-The Tap Indexer (`SimpleIndexer`) can be accessed using:
+1. Run the migrations
+2. Switch the Session Guard Provider to `atprotoAuthProvider`
+3. Build your login form, using the `oauth.login` route (see `node ace list:routes` for all the routes)
+4. ???
+5. Profit!!
 
-```ts
-import indexer from '@thisismissem/adonisjs-atproto-tap/services/indexer'
+---
+
+## Features
+
+### Session Guard Provider
+
+Normally with `@adonisjs/auth` the `provider` for the `sessionGuard` is `sessionUserProvider` which is backed by the database. For AT Protocol applications, your application doesn't manage the user account, instead it is provided by the PDS via OAuth, so we don't have a database model for a "user".
+
+So instead of using `sessionUserProvider` we need to swap to `atprotoAuthProvider`, which provides users based on their OAuth session, automatically refreshing access tokens as necessary. This provides a `auth.user` value which has a full-features AT Protocol client that can interact with the authenticated users' PDS.
+
+To use `atprotoAuthProvider`, we need to update the `@adonisjs/auth` configuration in `config/auth.ts` as follows:
+
+```diff
+import { defineConfig } from '@adonisjs/auth'
+- import { sessionGuard, sessionUserProvider } from '@adonisjs/auth/session'
++ import { sessionGuard } from '@adonisjs/auth/session'
++ import { atprotoAuthProvider } from '@thisismissem/adonisjs-atproto-oauth/auth/provider'
+
+const authConfig = defineConfig({
+  default: 'web',
+  guards: {
+    web: sessionGuard({
+      useRememberMeTokens: false,
++      provider: atprotoAuthProvider,
+-      provider: sessionUserProvider({
+-        model: () => import('#models/user'),
+-      }),
+    })
+  },
+})
+
+export default authConfig
 ```
 
-If you've installed using the instructions above, you will have the file `start/indexer.ts` created, which is where you can add the logic to handle the events from Tap. The provider automatically connects the `indexer.error()` handler to the [Adonis.js logger](https://docs.adonisjs.com/guides/digging-deeper/logger).
+### Authenticated User
 
-You can find out more in the [`@atproto/tap` documentation](https://github.com/bluesky-social/atproto/blob/main/packages/tap/README.md)
+The authenticated user, which can be retrieved from the `HttpContext` in Adonis.js via `auth` provide access to `did` and AT Protocol `client` for the authenticated user.
 
-## Tap API
+- `auth.user.did` is the DID of the authenticated user
+- `auth.user.client` is the `@atproto/lex` client for the authenticated user session
 
-The Tap Client API for adding and removing repositories, resolving DIDs and such is accessible via:
+This allows you to write controller code like the following:
 
-```ts
-import tap from '@thisismissem/adonisjs-atproto-tap/services/tap'
+```typescript
+import type { HttpContext } from '@adonisjs/core/http'
+import lexicon from '#lexicons/index'
+
+export default class ExampleController {
+  async index({ auth, view }: HttpContext) {
+    if (auth.isAuthenticated) {
+      const profile = await auth.user.client(lexicon.app.bsky.actor.profile).catch((_) => undefined)
+      if (profile?.value) {
+        return view.render('example', { profile: JSON.stringify(profile.value, null, 2) })
+      } else {
+        return view.render('example', { profile: 'User not on Bluesky' })
+      }
+    }
+
+    return view.render('example', { profile: 'null' })
+  }
+}
 ```
 
-Which provides the following methods for interacting with the Tap server:
+In the above `#lexicons` is an additional `imports` path in the `package.json` mapped to `"./app/lexicons/*.js"`. The files in that directory are code generated with the `lex build --clear --lexicons ../lexicons --out ./app/lexicons` command from the [`@atproto/lex`](https://github.com/bluesky-social/atproto/tree/main/packages/lex/lex#readme) package.
 
-- `addRepos(dids: string[]): Promise<void>` - Add repos to track (triggers backfill)
-- `removeRepos(dids: string[]): Promise<void>` - Stop tracking repos
-- `resolveDid(did: string): Promise<DidDocument | null>` - Resolve a DID to its DID document
-- `getRepoInfo(did: string): Promise<RepoInfo>` - Get info about a tracked repo
+## OAuth Context
 
-## Docker Setup for Tap
+In the generated `app/controllers/oauth_controller.ts` file you'll notice that we have a `oauth` property on `HttpContext`. This is a lightweight wrapper around the `NodeOAuthClient` from `@atproto/oauth-client-node` which has methods integrated with Adonis.js
 
-To run Tap locally, you'll likely want a `docker-compose.yaml` file with the following contents:
-
-```yaml
-services:
-  tap:
-    image: ghcr.io/bluesky-social/indigo/tap:latest
-    platform: linux/amd64
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:2480/health"]
-      interval: 2s
-      retries: 5
-      start_period: 10s
-      timeout: 10s
-    volumes:
-      - ./data/tap:/data
-    env_file: tap.env
-    environment:
-      TAP_BIND: :2480
-    ports:
-      - "127.0.0.1:2480:2480"
-```
-
-The `tap.env` file looks like:
-
-```sh
-TAP_SIGNAL_COLLECTION=fyi.questionable.actor.profile
-TAP_COLLECTION_FILTERS=fyi.questionable.*
-TAP_ADMIN_PASSWORD=admin-password
-```
-
-For the full configuration see the [Tap documentation](https://github.com/bluesky-social/indigo/blob/main/cmd/tap/README.md). You cannot use `TAP_WEBHOOK_URL` with this package, since it depends on the WebSocket interface.
+You can see the full methods provide in [`OAuthContext`](https://github.com/ThisIsMissEm/adonisjs-atproto-oauth/blob/main/src/oauth_context.ts)

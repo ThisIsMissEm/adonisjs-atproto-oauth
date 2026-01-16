@@ -1,20 +1,12 @@
-import type { Config, TapProviderConfig } from './types.js'
+import { InvalidArgumentsException } from '@adonisjs/core/exceptions'
+import type { OAuthProviderConfig } from './types.js'
 
-export function defineConfig<T extends Config>({ url, ...config }: T): TapProviderConfig {
-  const tapConfig: TapProviderConfig = {
-    url,
-    config,
+export function defineConfig<T extends OAuthProviderConfig>(config: T): OAuthProviderConfig {
+  if (!config.metadata.redirect_uris || config.metadata.redirect_uris.length < 1) {
+    throw new InvalidArgumentsException(
+      'Missing redirect_uris in AT Protocol OAuth client metadata. At least one must be defined.'
+    )
   }
 
-  // Sensible default:
-  if (typeof tapConfig.url === 'undefined') {
-    tapConfig.url = 'http://localhost:2480'
-  }
-
-  // FIXME: Workaround for https://github.com/bluesky-social/atproto/issues/4476
-  if (tapConfig.url.endsWith('/')) {
-    tapConfig.url = tapConfig.url.slice(0, -1)
-  }
-
-  return tapConfig
+  return config
 }

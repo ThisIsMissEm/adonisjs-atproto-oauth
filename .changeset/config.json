@@ -1,6 +1,6 @@
 {
   "$schema": "https://unpkg.com/@changesets/config@3.1.2/schema.json",
-  "changelog": ["@changesets/changelog-github", { "repo": "thisismissem/adonisjs-atproto-tap" }],
+  "changelog": ["@changesets/changelog-github", { "repo": "thisismissem/adonisjs-atproto-oauth" }],
   "commit": false,
   "fixed": [],
   "linked": [],
