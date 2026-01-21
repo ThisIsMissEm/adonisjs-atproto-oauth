@@ -97,6 +97,49 @@ export default class ExampleController {
 
 In the above `#lexicons` is an additional `imports` path in the `package.json` mapped to `"./app/lexicons/*.js"`. The files in that directory are code generated with the `lex build --clear --lexicons ../lexicons --out ./app/lexicons` command from the [`@atproto/lex`](https://github.com/bluesky-social/atproto/tree/main/packages/lex/lex#readme) package.
 
+#### Extending the Authenticated User
+
+The authenticated user is an instance of `AtProtoUser`, and can be extended the same way as the rest of the [Adonis.js Framework](https://docs.adonisjs.com/guides/concepts/extending-adonisjs). This also allows other packages to extend this package.
+
+For example, if we wanted to add a method for fetching the users' profile from Bluesky, we would have the `src/extensions.ts` file from the Adonis.js documentation contain the following contents:
+
+```ts
+// src/extensions.ts
+import { AtProtoUser } from '@thisismissem/adonisjs-atproto-oauth'
+import * as lexicon from '#lexicons/index'
+
+AtProtoUser.macro('fetchProfile', async function hasProfile(this: AtProtoUser) {
+  const profile = await this.client
+    .get(lexicon.app.bsky.actor.profile)
+    .catch((_) => undefined)
+
+  if (profile?.value) {
+    return profile.value
+  }
+
+  return undefined
+})
+
+declare module '@thisismissem/adonisjs-atproto-oauth' {
+  interface AtProtoUser {
+    fetchProfile(): Promise<undefined | lexicon.app.bsky.actor.profile.Main>
+  }
+}
+```
+
+Then when we're handling a request, we can do:
+
+```ts
+export default class ExampleController {
+  async show({ auth, response }: HttpContext) {
+    const user = auth.getUserOrFail()
+    const profile = await user.fetchProfile()
+
+    response.json(profile)
+  }
+}
+```
+
 ## OAuth Context
 
 In the generated `app/controllers/oauth_controller.ts` file you'll notice that we have a `oauth` property on `HttpContext`. This is a lightweight wrapper around the `NodeOAuthClient` from `@atproto/oauth-client-node` which has methods integrated with Adonis.js

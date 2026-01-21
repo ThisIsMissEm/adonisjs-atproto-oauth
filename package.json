@@ -115,5 +115,8 @@
       "tests/**"
     ]
   },
-  "prettier": "@adonisjs/prettier-config"
+  "prettier": "@adonisjs/prettier-config",
+  "dependencies": {
+    "@poppinss/macroable": "^1.1.0"
+  }
 }
