@@ -1,9 +1,12 @@
 import { Client } from '@atproto/lex'
 import { OAuthSession } from '@atproto/oauth-client-node'
+import Macroable from '@poppinss/macroable'
 
-export class AtProtoUser {
+export class AtProtoUser extends Macroable {
   #client?: Client
-  constructor(protected session: OAuthSession) {}
+  constructor(protected session: OAuthSession) {
+    super()
+  }
 
   get did() {
     return this.session.did
