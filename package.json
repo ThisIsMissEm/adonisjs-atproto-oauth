@@ -1,7 +1,7 @@
 {
   "name": "@thisismissem/adonisjs-atproto-oauth",
   "description": "Adonis.js provider for doing AT Protocol OAuth logins",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "engines": {
     "node": ">=20.6.0"
   },
