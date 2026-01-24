@@ -1,5 +1,5 @@
 ---
-'@thisismissem/adonisjs-atproto-oauth': patch
+'@thisismissem/adonisjs-atproto-oauth': minor
 ---
 
 Add extensibility for the `user` instance returned from `oauth.handleCallback`
