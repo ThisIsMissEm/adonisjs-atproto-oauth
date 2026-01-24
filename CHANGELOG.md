@@ -1,5 +1,11 @@
 # @thisismissem/adonisjs-atproto-oauth
 
+## 1.0.0
+
+### Major Changes
+
+- [#17](https://github.com/ThisIsMissEm/adonisjs-atproto-oauth/pull/17) [`e572c15`](https://github.com/ThisIsMissEm/adonisjs-atproto-oauth/commit/e572c15660bbb54ef379d97c1cef51b7d2e68a11) Thanks [@ThisIsMissEm](https://github.com/ThisIsMissEm)! - First stable release of @thisismissem/adonisjs-atproto-oauth
+
 ## 0.2.0
 
 ### Minor Changes
