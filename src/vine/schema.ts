@@ -63,7 +63,7 @@ export class VineAtprotoIdentifier extends BaseLiteralType<
   }
 
   clone() {
-    return new VineAtprotoUri(this.cloneOptions(), this.cloneValidations()) as this
+    return new VineAtprotoIdentifier(this.cloneOptions(), this.cloneValidations()) as this
   }
 }
 
