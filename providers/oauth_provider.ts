@@ -4,6 +4,13 @@ import { OAuthSessionsModel, OAuthStatesModel, type OAuthProviderConfig } from '
 import { OAuthClient } from '../src/client.js'
 import { OAuthStore } from '../src/oauth_store.js'
 import { NodeSavedSession, NodeSavedState } from '@atproto/oauth-client-node'
+import type { VineAtproto } from '../src/vine/define.js'
+
+declare module '@vinejs/vine' {
+  interface Vine {
+    atproto: VineAtproto
+  }
+}
 
 declare module '@adonisjs/core/types' {
   export interface ContainerBindings {
@@ -14,6 +21,13 @@ declare module '@adonisjs/core/types' {
 
 export default class AtProtoProvider {
   constructor(protected app: ApplicationService) {}
+
+  async registerVinejs() {
+    if (this.app.usingVineJS) {
+      const { defineVineAtProto } = await import('../src/vine/define.js')
+      defineVineAtProto()
+    }
+  }
 
   register() {
     this.app.container.singleton('atproto.oauth.config', async () => {
@@ -61,6 +75,8 @@ export default class AtProtoProvider {
     if (this.app.getEnvironment() === 'web') {
       await client.configure(config.publicUrl, config.metadata, config.jwks)
     }
+
+    await this.registerVinejs()
   }
 
   async start() {}
