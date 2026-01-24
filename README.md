@@ -145,3 +145,16 @@ export default class ExampleController {
 In the generated `app/controllers/oauth_controller.ts` file you'll notice that we have a `oauth` property on `HttpContext`. This is a lightweight wrapper around the `NodeOAuthClient` from `@atproto/oauth-client-node` which has methods integrated with Adonis.js
 
 You can see the full methods provide in [`OAuthContext`](https://github.com/ThisIsMissEm/adonisjs-atproto-oauth/blob/main/src/oauth_context.ts)
+
+## Vine.js Validators
+
+We ship several custom vine.js rules for validating various AT Protocol [string formats](https://atproto.com/specs/lexicon#string-formats):
+- `vine.atproto.identifier()`
+- `vine.atproto.did()`
+- `vine.atproto.handle()`
+- `vine.atproto.service()`
+- `vine.atproto.atUri()`
+- `vine.atproto.datetime()`
+- `vine.atproto.language()`
+
+The only rule that isn't a typical [string format](https://atproto.com/specs/lexicon#string-formats) from AT Protocol is `vine.atproto.service()` which is used for validating OAuth service identifiers, which are essentially just URLs without an components after the hostname. You'd use this rule for validating an OAuth sign up request.
