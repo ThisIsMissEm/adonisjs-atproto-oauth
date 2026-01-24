@@ -35,11 +35,12 @@ export class OAuthContext {
   }
 
   async register(service: string, options: AuthorizeOptions = {}) {
-    const prompt = (await this.canRegister(service)) ? 'create' : 'select_account'
+    const canRegister = await this.canRegister(service)
+    const promptOptions: AuthorizeOptions = canRegister ? { prompt: 'create' } : {}
 
     return this.authorize(service, {
       ...options,
-      prompt,
+      ...promptOptions,
     })
   }
 
