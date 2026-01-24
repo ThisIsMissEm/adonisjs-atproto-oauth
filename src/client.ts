@@ -94,6 +94,8 @@ export class OAuthClient {
 
   private async registerClient({
     client_id,
+    jwks,
+    jwks_uri,
     ...metadata
   }: OAuthClientMetadataInput): Promise<OAuthClientMetadataInput> {
     const response = await fetch('https://cimd-service.fly.dev/clients', {
@@ -152,6 +154,11 @@ export class OAuthClient {
           clientId: oauthClientIdDiscoverableSchema.parse(clientId),
         })
       } else {
+        if (!this.app.inProduction && (compiledMetadata.jwks || compiledMetadata.jwks_uri)) {
+          this.logger.warn(
+            'OAuth client metadata contains jwks or jwks_uri properties, these are unsupported by CIMD Service'
+          )
+        }
         this.#metadata = await this.registerClient(compiledMetadata)
       }
     }
