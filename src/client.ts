@@ -142,6 +142,7 @@ export class OAuthClient {
       }
 
       if (!clientId.startsWith(publicUrl)) {
+        this.logger.trace(`Fetching OAuth Client Metadata: ${clientId}`)
         this.#metadata = await NodeOAuthClient.fetchMetadata({
           clientId: oauthClientIdDiscoverableSchema.parse(clientId),
         })
@@ -150,6 +151,7 @@ export class OAuthClient {
       }
     } else {
       if (clientId !== this.defaultClientId()) {
+        this.logger.trace(`Fetching OAuth Client Metadata: ${clientId}`)
         this.#metadata = await NodeOAuthClient.fetchMetadata({
           clientId: oauthClientIdDiscoverableSchema.parse(clientId),
         })
@@ -159,6 +161,8 @@ export class OAuthClient {
             'OAuth client metadata contains jwks or jwks_uri properties, these are unsupported by CIMD Service'
           )
         }
+
+        this.logger.trace(`Registering OAuth Client with cimd-service`)
         this.#metadata = await this.registerClient(compiledMetadata)
       }
     }
