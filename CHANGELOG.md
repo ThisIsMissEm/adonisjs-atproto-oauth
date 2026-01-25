@@ -1,5 +1,13 @@
 # @thisismissem/adonisjs-atproto-oauth
 
+## 1.0.1
+
+### Patch Changes
+
+- [#19](https://github.com/ThisIsMissEm/adonisjs-atproto-oauth/pull/19) [`9d58418`](https://github.com/ThisIsMissEm/adonisjs-atproto-oauth/commit/9d584182f237a30d7c9399977993a96a0b51f8ca) Thanks [@ThisIsMissEm](https://github.com/ThisIsMissEm)! - Fix broken `isAtUriString` from `@atproto/lex-schema` v0.0.9
+
+  In v0.0.9 of `@atproto/lex-schema`, the method `isAtUriString` returned false for valid AT URI strings. Upgrading to v0.0.10 fixes this issue.
+
 ## 1.0.0
 
 ### Major Changes
