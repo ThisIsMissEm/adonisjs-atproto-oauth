@@ -1,5 +1,11 @@
 # @thisismissem/adonisjs-atproto-oauth
 
+## 1.0.2
+
+### Patch Changes
+
+- [#21](https://github.com/ThisIsMissEm/adonisjs-atproto-oauth/pull/21) [`c9b46cb`](https://github.com/ThisIsMissEm/adonisjs-atproto-oauth/commit/c9b46cb02f61ab2fc86039bf5b449eef51530d4f) Thanks [@ThisIsMissEm](https://github.com/ThisIsMissEm)! - Fix outdated `@atproto/lex` version
+
 ## 1.0.1
 
 ### Patch Changes
