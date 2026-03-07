@@ -1,6 +1,6 @@
-import { SimpleStore, Value } from '@atproto-labs/simple-store'
+import type { SimpleStore, Value } from '@atproto-labs/simple-store'
+import type { OAuthModel } from './types.js'
 import { safeParseJson } from './utils.js'
-import { OAuthModel } from './types.js'
 
 export class OAuthStore<Model extends OAuthModel, T extends Value> implements SimpleStore<
   string,

@@ -109,9 +109,7 @@ import { AtProtoUser } from '@thisismissem/adonisjs-atproto-oauth'
 import * as lexicon from '#lexicons/index'
 
 AtProtoUser.macro('fetchProfile', async function hasProfile(this: AtProtoUser) {
-  const profile = await this.client
-    .get(lexicon.app.bsky.actor.profile)
-    .catch((_) => undefined)
+  const profile = await this.client.get(lexicon.app.bsky.actor.profile).catch((_) => undefined)
 
   if (profile?.value) {
     return profile.value
@@ -149,6 +147,7 @@ You can see the full methods provide in [`OAuthContext`](https://github.com/This
 ## Vine.js Validators
 
 We ship several custom vine.js rules for validating various AT Protocol [string formats](https://atproto.com/specs/lexicon#string-formats):
+
 - `vine.atproto.identifier()`
 - `vine.atproto.did()`
 - `vine.atproto.handle()`

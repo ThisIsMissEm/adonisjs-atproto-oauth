@@ -1,7 +1,7 @@
+import type { SessionGuardUser, SessionUserProviderContract } from '@adonisjs/auth/types/session'
 import app from '@adonisjs/core/services/app'
 import logger from '@adonisjs/core/services/logger'
 import { symbols } from '@adonisjs/auth'
-import { SessionGuardUser, SessionUserProviderContract } from '@adonisjs/auth/types/session'
 import { AtProtoUser } from './atproto_user.js'
 import { TokenRefreshError } from '@atproto/oauth-client-node'
 

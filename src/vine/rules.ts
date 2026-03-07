@@ -8,7 +8,7 @@ import {
 } from '@atproto/lex'
 import { webUriSchema } from '@atproto/oauth-client-node'
 import vine from '@vinejs/vine'
-import { FieldContext } from '@vinejs/vine/types'
+import type { FieldContext } from '@vinejs/vine/types'
 
 function atString(value: unknown, field: FieldContext, rule: string) {
   if (!field.isDefined) {

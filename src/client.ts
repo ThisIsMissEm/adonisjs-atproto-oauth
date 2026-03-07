@@ -1,19 +1,22 @@
-import { Router } from '@adonisjs/core/http'
+import type { ContainerBindings } from '@adonisjs/core/types'
+import type { Application } from '@adonisjs/core/app'
+import type { Router } from '@adonisjs/core/http'
+import type { Logger } from '@adonisjs/core/logger'
+import type {
+  NodeSavedSessionStore,
+  NodeSavedStateStore,
+  OAuthClientMetadata,
+  OAuthClientMetadataInput,
+} from '@atproto/oauth-client-node'
+import type { OAuthMetadata } from './types.js'
+
 import {
   JoseKey,
   Keyset,
   NodeOAuthClient,
-  NodeSavedSessionStore,
-  NodeSavedStateStore,
   oauthClientIdDiscoverableSchema,
-  OAuthClientMetadata,
-  OAuthClientMetadataInput,
 } from '@atproto/oauth-client-node'
-import { OAuthMetadata } from './types.js'
 import { RuntimeException } from '@adonisjs/core/exceptions'
-import { ContainerBindings } from '@adonisjs/core/types'
-import { Logger } from '@adonisjs/core/logger'
-import { Application } from '@adonisjs/core/app'
 
 export class OAuthClient {
   #client?: NodeOAuthClient

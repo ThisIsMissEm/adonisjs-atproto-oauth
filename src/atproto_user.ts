@@ -1,5 +1,5 @@
+import type { OAuthSession } from '@atproto/oauth-client-node'
 import { Client } from '@atproto/lex'
-import { OAuthSession } from '@atproto/oauth-client-node'
 import Macroable from '@poppinss/macroable'
 
 export class AtProtoUser extends Macroable {
