@@ -1,7 +1,7 @@
-import { HttpContext } from '@adonisjs/core/http'
-import { OAuthClient } from './client.js'
+import type { AuthorizeOptions } from '@atproto/oauth-client-node'
+import type { HttpContext } from '@adonisjs/core/http'
+import type { OAuthClient } from './client.js'
 import { AtProtoUser } from './atproto_user.js'
-import { AuthorizeOptions } from '@atproto/oauth-client-node'
 
 export class OAuthContext {
   constructor(

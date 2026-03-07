@@ -1,13 +1,16 @@
-import {
+import type { FieldOptions, Validation } from '@vinejs/vine/types'
+import type {
   AtIdentifierString,
   AtUriString,
   DatetimeString,
   DidString,
   HandleString,
-  isDatetimeString,
-  isLanguageString,
   LanguageString,
 } from '@atproto/lex'
+import type { WebUri } from '@atproto/oauth-client-node'
+
+import { isDatetimeString, isLanguageString } from '@atproto/lex'
+import { BaseLiteralType, symbols } from '@vinejs/vine'
 import {
   isAtIdentifierRule,
   isAtUriRule,
@@ -17,9 +20,6 @@ import {
   isLanguageRule,
   isServiceRule,
 } from './rules.js'
-import { BaseLiteralType, symbols } from '@vinejs/vine'
-import { FieldOptions, Validation } from '@vinejs/vine/types'
-import { WebUri } from '@atproto/oauth-client-node'
 
 export class VineAtprotoAtUri extends BaseLiteralType<string, AtUriString, AtUriString> {
   [symbols.SUBTYPE] = `atproto.at-uri`;

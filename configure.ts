@@ -13,8 +13,8 @@
 */
 
 import type ConfigureCommand from '@adonisjs/core/commands/configure'
+import type { Codemods } from '@adonisjs/core/ace/codemods'
 import { stubsRoot } from './stubs/main.js'
-import { Codemods } from '@adonisjs/core/ace/codemods'
 
 type Packages = { name: string; isDevDependency: boolean }[]
 

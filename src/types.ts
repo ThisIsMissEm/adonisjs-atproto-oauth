@@ -1,5 +1,5 @@
-import { LucidModel } from '@adonisjs/lucid/types/model'
-import { OAuthClientMetadataInput } from '@atproto/oauth-client-node'
+import type { LucidModel } from '@adonisjs/lucid/types/model'
+import type { OAuthClientMetadataInput } from '@atproto/oauth-client-node'
 
 export type OAuthProviderConfig = {
   publicUrl: string

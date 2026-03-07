@@ -1,10 +1,11 @@
-import { RuntimeException } from '@adonisjs/core/exceptions'
 import type { ApplicationService } from '@adonisjs/core/types'
-import { OAuthSessionsModel, OAuthStatesModel, type OAuthProviderConfig } from '../src/types.js'
+import type { NodeSavedSession, NodeSavedState } from '@atproto/oauth-client-node'
+import type { OAuthSessionsModel, OAuthStatesModel, OAuthProviderConfig } from '../src/types.js'
+import type { VineAtproto } from '../src/vine/define.js'
+
+import { RuntimeException } from '@adonisjs/core/exceptions'
 import { OAuthClient } from '../src/client.js'
 import { OAuthStore } from '../src/oauth_store.js'
-import { NodeSavedSession, NodeSavedState } from '@atproto/oauth-client-node'
-import type { VineAtproto } from '../src/vine/define.js'
 
 declare module '@vinejs/vine' {
   interface Vine {
