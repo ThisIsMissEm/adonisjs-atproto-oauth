@@ -8,15 +8,11 @@
   "packageManager": "pnpm@10.28.0+sha512.05df71d1421f21399e053fde567cea34d446fa02c76571441bfc1c7956e98e363088982d940465fd34480d4d90a0668bc12362f8aa88000a64e83d0b0e47be48",
   "type": "module",
   "files": [
-    "build/src",
-    "build/providers",
-    "build/services",
-    "build/stubs",
-    "build/index.d.ts",
-    "build/index.js",
-    "build/configure.d.ts",
-    "build/configure.js"
+    "build",
+    "!build/bin",
+    "!build/tests"
   ],
+  "main": "build/index.js",
   "exports": {
     ".": "./build/index.js",
     "./provider": "./build/providers/oauth_provider.js",
@@ -26,7 +22,6 @@
   },
   "scripts": {
     "changeset": "changeset",
-    "clean": "del-cli build",
     "copy:templates": "copyfiles \"stubs/**/*.stub\" build",
     "typecheck": "tsc --noEmit",
     "lint": "pnpm run typecheck && eslint .",
@@ -37,9 +32,10 @@
     "pretest": "pnpm run lint",
     "test": "c8 pnpm run quick:test",
     "types:check": "attw --pack . --profile esm-only --profile node16 --ignore-rules=cjs-resolves-to-esm",
-    "prebuild": "pnpm run lint && pnpm run clean",
-    "build": "tsc",
-    "postbuild": "pnpm run copy:templates",
+    "precompile": "npm run lint",
+    "compile": "tsdown && tsc --emitDeclarationOnly --declaration",
+    "postcompile": "npm run copy:templates",
+    "build": "pnpm run compile",
     "version-packages": "changeset version && pnpm run format:write CHANGELOG.md && git add package.json CHANGELOG.md",
     "release": "pnpm run build && changeset publish",
     "prepublishOnly": "pnpm run build"
@@ -61,6 +57,9 @@
   ],
   "repository": {
     "url": "https://github.com/ThisIsMissEm/adonisjs-atproto-oauth"
+  },
+  "dependencies": {
+    "@poppinss/macroable": "^1.1.0"
   },
   "devDependencies": {
     "@adonisjs/assembler": "^8.0.0",
@@ -86,11 +85,11 @@
     "@vinejs/vine": "^4.3.0",
     "c8": "^11.0.0",
     "copyfiles": "^2.4.1",
-    "del-cli": "^7.0.0",
     "eslint": "^10.0.3",
     "luxon": "^3.7.2",
     "np": "^11.0.2",
     "prettier": "^3.8.1",
+    "tsdown": "^0.21.0",
     "typescript": "^5.4.5",
     "yalc": "1.0.0-pre.53"
   },
@@ -98,6 +97,7 @@
     "@adonisjs/auth": "^10.0.0",
     "@adonisjs/core": "^7.0.1",
     "@adonisjs/lucid": "^22.1.0",
+    "@adonisjs/assembler": "^8.0.0",
     "@atproto-labs/simple-store": "^0.3.0",
     "@atproto/jwk-jose": "^0.1.11",
     "@atproto/lex": "^0.0.20",
@@ -105,9 +105,33 @@
     "@vinejs/vine": "^4.3.0",
     "luxon": "^3.7.2"
   },
+  "peerDependenciesMeta": {
+    "@adonisjs/assembler": {
+      "optional": true
+    }
+  },
   "publishConfig": {
     "access": "public",
-    "tag": "latest"
+    "provenance": true
+  },
+  "tsdown": {
+    "entry": [
+      "./index.ts",
+      "./configure.ts",
+      "./providers/oauth_provider.ts",
+      "./src/atproto_auth_provider.ts",
+      "./src/middleware.ts",
+      "./src/types.ts"
+    ],
+    "outDir": "./build",
+    "clean": true,
+    "format": "esm",
+    "minify": "dce-only",
+    "fixedExtension": false,
+    "dts": false,
+    "treeshake": false,
+    "sourcemaps": false,
+    "target": "esnext"
   },
   "c8": {
     "reporter": [
@@ -118,8 +142,5 @@
       "tests/**"
     ]
   },
-  "prettier": "@adonisjs/prettier-config",
-  "dependencies": {
-    "@poppinss/macroable": "^1.1.0"
-  }
+  "prettier": "@adonisjs/prettier-config"
 }
