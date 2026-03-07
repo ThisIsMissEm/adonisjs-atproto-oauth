@@ -111,7 +111,7 @@ export async function configure(command: Configure) {
     variables: {
       PUBLIC_URL: `Env.schema.string({ format: 'url', tld: false })`,
       ATPROTO_OAUTH_CLIENT_ID: `Env.schema.string.optional({ format: 'url', tld: true, protocol: true })`,
-      ATPROTO_OAUTH_JWT_PRIVATE_KEY: `Env.schema.string.optional()`,
+      ATPROTO_OAUTH_JWT_PRIVATE_KEY: `Env.schema.secret.optional()`,
     },
     leadingComment: 'Variables for configuring the AT Protocol OAuth',
   })
