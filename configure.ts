@@ -12,13 +12,13 @@
 |
 */
 
-import type ConfigureCommand from '@adonisjs/core/commands/configure'
+import type Configure from '@adonisjs/core/commands/configure'
 import type { Codemods } from '@adonisjs/core/ace/codemods'
 import { stubsRoot } from './stubs/main.js'
 
 type Packages = { name: string; isDevDependency: boolean }[]
 
-export async function configure(command: ConfigureCommand) {
+export async function configure(command: Configure) {
   const packageName = '@thisismissem/adonisjs-atproto-oauth'
 
   /**
@@ -134,7 +134,7 @@ export async function configure(command: ConfigureCommand) {
   }
 }
 
-async function addRoutes(command: ConfigureCommand, codemods: Codemods) {
+async function addRoutes(command: Configure, codemods: Codemods) {
   const action = command.logger.action('update start/routes.ts')
   const project = await codemods.getTsMorphProject()
   if (!project) {
