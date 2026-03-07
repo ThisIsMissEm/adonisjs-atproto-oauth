@@ -99,8 +99,8 @@
     "@adonisjs/lucid": "^22.1.0",
     "@atproto-labs/simple-store": "^0.3.0",
     "@atproto/jwk-jose": "^0.1.11",
-    "@atproto/lex": "^0.0.12",
-    "@atproto/oauth-client-node": "^0.3.15",
+    "@atproto/lex": "^0.0.20",
+    "@atproto/oauth-client-node": "^0.3.17",
     "@vinejs/vine": "^4.3.0",
     "luxon": "^3.7.2"
   },
