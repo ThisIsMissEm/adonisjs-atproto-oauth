@@ -1,5 +1,17 @@
 # @thisismissem/adonisjs-atproto-oauth
 
+## 2.0.0
+
+### Major Changes
+
+- [#23](https://github.com/ThisIsMissEm/adonisjs-atproto-oauth/pull/23) [`01ec856`](https://github.com/ThisIsMissEm/adonisjs-atproto-oauth/commit/01ec8569765515498fadce3e6187642582e758a7) Thanks [@ThisIsMissEm](https://github.com/ThisIsMissEm)! - Upgrade to Adonis.js v7
+
+### Patch Changes
+
+- [#29](https://github.com/ThisIsMissEm/adonisjs-atproto-oauth/pull/29) [`4f0279d`](https://github.com/ThisIsMissEm/adonisjs-atproto-oauth/commit/4f0279d644eb5562e3ab6340db0eec2cb699c19b) Thanks [@ThisIsMissEm](https://github.com/ThisIsMissEm)! - Allow using Secret values for the JWKS keys
+
+  This prevents the JWKS keys from accidentally being logged, as the value is secret and redacted automatically in logs if someone does `console.log(env)` or similar where `env` is `import "#start/env"`.
+
 ## 1.0.2
 
 ### Patch Changes
