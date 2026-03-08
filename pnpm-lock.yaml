@@ -11,6 +11,9 @@ importers:
       '@poppinss/macroable':
         specifier: ^1.1.0
         version: 1.1.0
+      '@poppinss/utils':
+        specifier: ^7.0.1
+        version: 7.0.1
     devDependencies:
       '@adonisjs/assembler':
         specifier: ^8.0.0

@@ -1,9 +1,12 @@
 import type { LucidModel } from '@adonisjs/lucid/types/model'
 import type { OAuthClientMetadataInput } from '@atproto/oauth-client-node'
+import { type Secret } from '@poppinss/utils'
+
+export type JwksConfig = (string | Secret<string>)[]
 
 export type OAuthProviderConfig = {
   publicUrl: string
-  jwks?: string[]
+  jwks?: JwksConfig
   metadata: OAuthMetadata
   sessionStore: OAuthSessionsModel
   stateStore: OAuthStatesModel

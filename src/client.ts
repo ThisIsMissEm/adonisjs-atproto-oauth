@@ -8,7 +8,7 @@ import type {
   OAuthClientMetadata,
   OAuthClientMetadataInput,
 } from '@atproto/oauth-client-node'
-import type { OAuthMetadata } from './types.js'
+import type { JwksConfig, OAuthMetadata } from './types.js'
 
 import {
   JoseKey,
@@ -40,10 +40,11 @@ export class OAuthClient {
     return new URL(this.router.makeUrl(routeIdentifier), this.#publicUrl).toString()
   }
 
-  private async createKeyset(jwks: string[]): Promise<Keyset<JoseKey>> {
+  private async createKeyset(jwks: JwksConfig): Promise<Keyset<JoseKey>> {
     const keys = await Promise.all(
       jwks.map((key) => {
-        return JoseKey.fromImportable(key)
+        let jwk = typeof key === 'string' ? key : key.release()
+        return JoseKey.fromImportable(jwk)
       })
     )
 
@@ -129,7 +130,7 @@ export class OAuthClient {
     }
   }
 
-  async configure(publicUrl: string, metadata: OAuthMetadata, jwks?: string[]): Promise<void> {
+  async configure(publicUrl: string, metadata: OAuthMetadata, jwks?: JwksConfig): Promise<void> {
     if (jwks && jwks.length > 0) {
       this.#keyset = await this.createKeyset(jwks)
     }

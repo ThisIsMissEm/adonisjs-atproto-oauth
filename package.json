@@ -59,7 +59,8 @@
     "url": "https://github.com/ThisIsMissEm/adonisjs-atproto-oauth"
   },
   "dependencies": {
-    "@poppinss/macroable": "^1.1.0"
+    "@poppinss/macroable": "^1.1.0",
+    "@poppinss/utils": "^7.0.1"
   },
   "devDependencies": {
     "@adonisjs/assembler": "^8.0.0",
@@ -94,10 +95,10 @@
     "yalc": "1.0.0-pre.53"
   },
   "peerDependencies": {
+    "@adonisjs/assembler": "^8.0.0",
     "@adonisjs/auth": "^10.0.0",
     "@adonisjs/core": "^7.0.1",
     "@adonisjs/lucid": "^22.1.0",
-    "@adonisjs/assembler": "^8.0.0",
     "@atproto-labs/simple-store": "^0.3.0",
     "@atproto/jwk-jose": "^0.1.11",
     "@atproto/lex": "^0.0.20",
