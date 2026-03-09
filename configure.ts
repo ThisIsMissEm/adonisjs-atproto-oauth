@@ -13,13 +13,17 @@
 */
 
 import type Configure from '@adonisjs/core/commands/configure'
-import type { Codemods } from '@adonisjs/core/ace/codemods'
-import { stubsRoot } from './stubs/main.js'
+import type { CodeTransformer } from '@adonisjs/assembler/code_transformer'
+import { existsSync } from 'node:fs'
+import { stubsRoot } from './stubs/main.ts'
 
 type Packages = { name: string; isDevDependency: boolean }[]
 
 export async function configure(command: Configure) {
   const packageName = '@thisismissem/adonisjs-atproto-oauth'
+
+  const inertiaConfigPath = command.app.configPath('inertia.ts')
+  const usingInertia = existsSync(inertiaConfigPath)
 
   /**
    * Prompt when `install` or `--no-install` flags are
@@ -28,9 +32,15 @@ export async function configure(command: Configure) {
   let shouldInstallPackages: boolean | undefined = command.parsedFlags.install
   if (shouldInstallPackages === undefined) {
     shouldInstallPackages = await command.prompt.confirm(
-      `Do you want to install additional packages required by "${packageName}"?`
+      `Do you want to install additional packages required by "${packageName}"?`,
+      { default: true }
     )
   }
+
+  const useLucid = await command.prompt.confirm(
+    `Do you want to use Lucid for storing OAuth state??`,
+    { default: true }
+  )
 
   const codemods = await command.createCodemods()
   const packagesToInstall: Packages = [
@@ -45,7 +55,9 @@ export async function configure(command: Configure) {
   }
 
   // Publish config file
-  await codemods.makeUsingStub(stubsRoot, 'config/atproto_oauth.stub', {})
+  await codemods.makeUsingStub(stubsRoot, 'config/atproto_oauth.stub', {
+    useLucid,
+  })
 
   // Add provider to rc file
   await codemods.updateRcFile((rcFile) => {
@@ -53,12 +65,7 @@ export async function configure(command: Configure) {
   })
 
   // Add migrations:
-  const shouldCreateMigrations = await command.prompt.confirm(
-    `Do you want to create the migrations required by "${packageName}"?`,
-    { default: false }
-  )
-
-  if (shouldCreateMigrations) {
+  if (useLucid) {
     await codemods.makeUsingStub(stubsRoot, 'migrations/oauth_sessions.stub', {
       entity: command.app.generators.createEntity('oauth_sessions'),
       migration: {
@@ -74,21 +81,22 @@ export async function configure(command: Configure) {
         fileName: `${new Date().getTime()}_create_oauth_states_table.ts`,
       },
     })
+
+    // Add models:
+    await codemods.makeUsingStub(stubsRoot, 'models/oauth_state.stub', {
+      entity: command.app.generators.createEntity('oauth_state'),
+    })
+
+    await codemods.makeUsingStub(stubsRoot, 'models/oauth_session.stub', {
+      entity: command.app.generators.createEntity('oauth_session'),
+    })
   }
-
-  // Add models:
-  await codemods.makeUsingStub(stubsRoot, 'models/oauth_state.stub', {
-    entity: command.app.generators.createEntity('oauth_state'),
-  })
-
-  await codemods.makeUsingStub(stubsRoot, 'models/oauth_session.stub', {
-    entity: command.app.generators.createEntity('oauth_session'),
-  })
 
   // Add controller:
   await codemods.makeUsingStub(stubsRoot, 'validators/oauth_validator.stub', {})
   await codemods.makeUsingStub(stubsRoot, 'controllers/oauth_controller.stub', {
     entity: command.app.generators.createEntity('oauth'),
+    usingInertia,
   })
 
   // Add the routes file:
@@ -116,13 +124,30 @@ export async function configure(command: Configure) {
     leadingComment: 'Variables for configuring the AT Protocol OAuth',
   })
 
-  await addRoutes(command, codemods)
+  const tsMorphAction = command.logger.action('Modifying project with ts-morph')
+  const project = await codemods.getTsMorphProject()
+  if (!project) {
+    tsMorphAction.failed('Failed to modify project')
+    return
+  }
+
+  try {
+    tsMorphAction.succeeded()
+    await modifyAuthConfig(command, project)
+    await addRoutes(command, project)
+  } catch (err) {
+    command.logger.debug(err)
+    tsMorphAction.failed('Failed to modify project')
+  }
 
   console.log('')
 
   const instructions = command.ui.instructions()
   instructions.heading('AT Protocol OAuth setup!')
   if (!shouldInstallPackages) instructions.add('Install the packages listed below')
+  if (!useLucid) {
+    instructions.add('Modify config/atproto_oauth.ts to have `stores` implementations')
+  }
   instructions.add('Run the migrations: node ace migration:run')
   instructions.add('Add your login form')
   instructions.render()
@@ -134,13 +159,62 @@ export async function configure(command: Configure) {
   }
 }
 
-async function addRoutes(command: Configure, codemods: Codemods) {
-  const action = command.logger.action('update start/routes.ts')
-  const project = await codemods.getTsMorphProject()
-  if (!project) {
-    action.failed('Failed to modify project')
+async function modifyAuthConfig(command: Configure, project: CodeTransformer['project']) {
+  const atprotoAuthProvider = '@thisismissem/adonisjs-atproto-oauth/auth/provider'
+  const authConfigPath = command.app.configPath('auth.ts')
+  const action = command.logger.action(`update config/auth.ts`)
+
+  const auth = project.getSourceFile(authConfigPath)
+  if (!auth) {
+    action.failed(`Failed to modify config/auth.ts`)
     return
   }
+
+  if (
+    !auth
+      .getImportDeclarations()
+      .some(
+        (importDeclaration) => importDeclaration.getModuleSpecifierValue() === atprotoAuthProvider
+      )
+  ) {
+    // Add the `atprotoAuthProvider` import:
+    auth.addImportDeclaration({
+      moduleSpecifier: atprotoAuthProvider,
+      namedImports: [{ name: 'atprotoUserProvider' }],
+    })
+
+    // Modify the `@adonisjs/auth/session` import to remove `sessionUserProvider`:
+    const authSessionImport = auth.getImportDeclaration((importDeclaration) => {
+      return importDeclaration.getModuleSpecifierValue() === '@adonisjs/auth/session'
+    })
+
+    if (authSessionImport) {
+      const imports = authSessionImport
+        .getNamedImports()
+        .filter((importSpecifier) => {
+          return importSpecifier.getName() !== 'sessionUserProvider'
+        })
+        .map((importSpecifier) => {
+          return importSpecifier.getStructure()
+        })
+      authSessionImport.removeNamedImports()
+      authSessionImport.addNamedImports(imports)
+
+      let source = auth.getText(true)
+      // 3. Replace sessionUserProvider({ ... }) call (possibly multiline) with atprotoAuthProvider
+      source = source.replace(/sessionUserProvider\(\s*\{[\s\S]*?\}\s*\)/g, 'atprotoUserProvider')
+
+      auth.replaceWithText(source)
+      await auth.save()
+      action.succeeded()
+    } else {
+      action.failed(`Could not automatically modify config/auth.ts to use \`atprotoUserProvider\`.`)
+    }
+  }
+}
+
+async function addRoutes(command: Configure, project: CodeTransformer['project']) {
+  const action = command.logger.action('update start/routes.ts')
 
   const oauthRoutesModule = '#start/routes/oauth'
   const routes = project.getSourceFile('start/routes.ts')
