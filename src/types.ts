@@ -2,7 +2,8 @@ import type { LucidModel } from '@adonisjs/lucid/types/model'
 import type { OAuthClientMetadataInput } from '@atproto/oauth-client-node'
 import { type Secret } from '@poppinss/utils'
 
-export type JwksConfig = (string | Secret<string>)[]
+export type JwksKeyset = (string | Secret<string>)[]
+export type JwksConfig = (string | Secret<string> | undefined)[]
 
 export type OAuthProviderConfig = {
   publicUrl: string
@@ -21,6 +22,7 @@ export type ProtectedMetadata =
   | 'token_endpoint_auth_method'
   | 'token_endpoint_auth_signing_alg'
   | 'jwks_uri'
+  | 'jwks'
   | 'dpop_bound_access_tokens'
 
 export type OAuthSessionsModel = LucidModel & {

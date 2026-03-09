@@ -15,8 +15,9 @@ export default defineConfig({
     redirect_uris: ['/oauth/callback'],
   },
 
-  // For a confidential client:
-  // jwks: [env.get('ATPROTO_OAUTH_JWT_PRIVATE_KEY')],
+  // For a confidential client, set this environment variable:
+  // Empty values are ignored
+  jwks: [env.get('ATPROTO_OAUTH_JWT_PRIVATE_KEY')],
 
   // Models to store OAuth State and Sessions:
   stateStore: OAuthState,

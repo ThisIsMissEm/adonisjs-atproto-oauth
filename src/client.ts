@@ -8,7 +8,7 @@ import type {
   OAuthClientMetadata,
   OAuthClientMetadataInput,
 } from '@atproto/oauth-client-node'
-import type { JwksConfig, OAuthMetadata } from './types.js'
+import type { JwksConfig, JwksKeyset, OAuthMetadata } from './types.js'
 
 import {
   JoseKey,
@@ -17,6 +17,7 @@ import {
   oauthClientIdDiscoverableSchema,
 } from '@atproto/oauth-client-node'
 import { RuntimeException } from '@adonisjs/core/exceptions'
+import { Secret } from '@poppinss/utils'
 
 export class OAuthClient {
   #client?: NodeOAuthClient
@@ -40,15 +41,46 @@ export class OAuthClient {
     return new URL(this.router.makeUrl(routeIdentifier), this.#publicUrl).toString()
   }
 
-  private async createKeyset(jwks: JwksConfig): Promise<Keyset<JoseKey>> {
-    const keys = await Promise.all(
-      jwks.map((key) => {
-        let jwk = typeof key === 'string' ? key : key.release()
-        return JoseKey.fromImportable(jwk)
+  private async createKeyset(jwks: JwksConfig): Promise<Keyset<JoseKey> | undefined> {
+    // remove undefined values
+    const keyset: JwksKeyset = jwks.filter((key) => key !== undefined)
+    if (!keyset.length) {
+      return
+    }
+
+    // process keyset:
+    const joseKeys = await Promise.allSettled(
+      keyset.map((key) => {
+        // handle using a Secret value instead of String:
+        if (key instanceof Secret) {
+          key = key.release()
+        }
+        return JoseKey.fromImportable(key)
       })
     )
 
-    return new Keyset(keys)
+    const rejectedKeys = joseKeys.filter((result) => result.status === 'rejected')
+    if (rejectedKeys.length) {
+      rejectedKeys.forEach((reject) => {
+        this.logger.error({ key: reject }, 'Invalid jwks key')
+      })
+    }
+
+    const loadedKeys = joseKeys
+      .filter((result) => result.status === 'fulfilled')
+      .map((result) => result.value)
+
+    // If we have keys in the keyset (in development) or in the jwks
+    // configuration (in production), but none successfully load, then bail as
+    // this would be a downgrade in security:
+    if (
+      (!this.app.inProduction && loadedKeys.length === 0 && keyset.length !== 0) ||
+      (this.app.inProduction && loadedKeys.length === 0 && jwks.length !== 0)
+    ) {
+      throw new RuntimeException('Failed to load jwks keyset')
+    }
+
+    return new Keyset(loadedKeys)
   }
 
   private createRedirectUris(metadata: OAuthMetadata): [string, ...string[]] {
@@ -132,7 +164,10 @@ export class OAuthClient {
 
   async configure(publicUrl: string, metadata: OAuthMetadata, jwks?: JwksConfig): Promise<void> {
     if (jwks && jwks.length > 0) {
-      this.#keyset = await this.createKeyset(jwks)
+      let keyset = await this.createKeyset(jwks)
+      if (keyset) {
+        this.#keyset = keyset
+      }
     }
 
     this.#publicUrl = publicUrl
