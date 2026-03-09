@@ -13,8 +13,8 @@
 */
 
 import type Configure from '@adonisjs/core/commands/configure'
-import type { Codemods } from '@adonisjs/core/ace/codemods'
-import { stubsRoot } from './stubs/main.js'
+import type { CodeTransformer } from '@adonisjs/assembler/code_transformer'
+import { stubsRoot } from './stubs/main.ts'
 
 type Packages = { name: string; isDevDependency: boolean }[]
 
@@ -119,7 +119,21 @@ export async function configure(command: Configure) {
     leadingComment: 'Variables for configuring the AT Protocol OAuth',
   })
 
-  await addRoutes(command, codemods)
+  const tsMorphAction = command.logger.action('Modifying project with ts-morph')
+  const project = await codemods.getTsMorphProject()
+  if (!project) {
+    tsMorphAction.failed('Failed to modify project')
+    return
+  }
+
+  try {
+    tsMorphAction.succeeded()
+    await modifyAuthConfig(command, project)
+    await addRoutes(command, project)
+  } catch (err) {
+    command.logger.debug(err)
+    tsMorphAction.failed('Failed to modify project')
+  }
 
   console.log('')
 
@@ -140,13 +154,62 @@ export async function configure(command: Configure) {
   }
 }
 
-async function addRoutes(command: Configure, codemods: Codemods) {
-  const action = command.logger.action('update start/routes.ts')
-  const project = await codemods.getTsMorphProject()
-  if (!project) {
-    action.failed('Failed to modify project')
+async function modifyAuthConfig(command: Configure, project: CodeTransformer['project']) {
+  const atprotoAuthProvider = '@thisismissem/adonisjs-atproto-oauth/auth/provider'
+  const authConfigPath = command.app.configPath('auth.ts')
+  const action = command.logger.action(`update config/auth.ts`)
+
+  const auth = project.getSourceFile(authConfigPath)
+  if (!auth) {
+    action.failed(`Failed to modify config/auth.ts`)
     return
   }
+
+  if (
+    !auth
+      .getImportDeclarations()
+      .some(
+        (importDeclaration) => importDeclaration.getModuleSpecifierValue() === atprotoAuthProvider
+      )
+  ) {
+    // Add the `atprotoAuthProvider` import:
+    auth.addImportDeclaration({
+      moduleSpecifier: atprotoAuthProvider,
+      namedImports: [{ name: 'atprotoUserProvider' }],
+    })
+
+    // Modify the `@adonisjs/auth/session` import to remove `sessionUserProvider`:
+    const authSessionImport = auth.getImportDeclaration((importDeclaration) => {
+      return importDeclaration.getModuleSpecifierValue() === '@adonisjs/auth/session'
+    })
+
+    if (authSessionImport) {
+      const imports = authSessionImport
+        .getNamedImports()
+        .filter((importSpecifier) => {
+          return importSpecifier.getName() !== 'sessionUserProvider'
+        })
+        .map((importSpecifier) => {
+          return importSpecifier.getStructure()
+        })
+      authSessionImport.removeNamedImports()
+      authSessionImport.addNamedImports(imports)
+
+      let source = auth.getText(true)
+      // 3. Replace sessionUserProvider({ ... }) call (possibly multiline) with atprotoAuthProvider
+      source = source.replace(/sessionUserProvider\(\s*\{[\s\S]*?\}\s*\)/g, 'atprotoUserProvider')
+
+      auth.replaceWithText(source)
+      await auth.save()
+      action.succeeded()
+    } else {
+      action.failed(`Could not automatically modify config/auth.ts to use \`atprotoUserProvider\`.`)
+    }
+  }
+}
+
+async function addRoutes(command: Configure, project: CodeTransformer['project']) {
+  const action = command.logger.action('update start/routes.ts')
 
   const oauthRoutesModule = '#start/routes/oauth'
   const routes = project.getSourceFile('start/routes.ts')

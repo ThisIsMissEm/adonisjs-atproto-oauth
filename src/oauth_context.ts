@@ -1,7 +1,7 @@
 import type { AuthorizeOptions } from '@atproto/oauth-client-node'
 import type { HttpContext } from '@adonisjs/core/http'
 import type { OAuthClient } from './client.js'
-import { AtProtoUser } from './atproto_user.js'
+import { AtprotoUser } from './atproto_user.js'
 
 export class OAuthContext {
   constructor(
@@ -51,14 +51,14 @@ export class OAuthContext {
   }
 
   async handleCallback(): Promise<{
-    user: AtProtoUser
+    user: AtprotoUser
     state: string | null
   }> {
     const params = this.ctx.request.qs()
     const result = await this.oauth.client.callback(new URLSearchParams(params))
 
     return {
-      user: new AtProtoUser(result.session),
+      user: new AtprotoUser(result.session),
       state: result.state,
     }
   }

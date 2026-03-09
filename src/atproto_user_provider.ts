@@ -2,16 +2,16 @@ import type { SessionGuardUser, SessionUserProviderContract } from '@adonisjs/au
 import app from '@adonisjs/core/services/app'
 import logger from '@adonisjs/core/services/logger'
 import { symbols } from '@adonisjs/auth'
-import { AtProtoUser } from './atproto_user.js'
+import { AtprotoUser } from './atproto_user.ts'
 import { TokenRefreshError } from '@atproto/oauth-client-node'
 
-export class AtProtoProvider implements SessionUserProviderContract<AtProtoUser> {
-  declare [symbols.PROVIDER_REAL_USER]: AtProtoUser
+export class AtprotoUserProvider implements SessionUserProviderContract<AtprotoUser> {
+  declare [symbols.PROVIDER_REAL_USER]: AtprotoUser
   /**
    * Create a user object that acts as an adapter between
    * the guard and real user value.
    */
-  async createUserForGuard(user: AtProtoUser): Promise<SessionGuardUser<AtProtoUser>> {
+  async createUserForGuard(user: AtprotoUser): Promise<SessionGuardUser<AtprotoUser>> {
     return {
       getId() {
         return user.did
@@ -29,7 +29,7 @@ export class AtProtoProvider implements SessionUserProviderContract<AtProtoUser>
 
     try {
       const session = await oauth.client.restore(identifier)
-      const user = new AtProtoUser(session)
+      const user = new AtprotoUser(session)
 
       return this.createUserForGuard(user)
     } catch (err) {
@@ -44,4 +44,9 @@ export class AtProtoProvider implements SessionUserProviderContract<AtProtoUser>
   }
 }
 
-export const atprotoAuthProvider = new AtProtoProvider()
+export const atprotoUserProvider = new AtprotoUserProvider()
+
+/**
+ * @deprecated
+ */
+export const atprotoAuthProvider = atprotoUserProvider

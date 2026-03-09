@@ -17,7 +17,8 @@
     ".": "./build/index.js",
     "./provider": "./build/providers/oauth_provider.js",
     "./types": "./build/src/types.js",
-    "./auth/provider": "./build/src/atproto_auth_provider.js",
+    "./auth/provider": "./build/src/atproto_user_provider.js",
+    "./auth/user_provider": "./build/src/atproto_user_provider.js",
     "./initialize_atproto_auth_middleware": "./build/src/middleware.js"
   },
   "scripts": {
@@ -120,7 +121,7 @@
       "./index.ts",
       "./configure.ts",
       "./providers/oauth_provider.ts",
-      "./src/atproto_auth_provider.ts",
+      "./src/atproto_user_provider.ts",
       "./src/middleware.ts",
       "./src/types.ts"
     ],
