@@ -1,5 +1,101 @@
 # @thisismissem/adonisjs-atproto-oauth
 
+## 3.0.0
+
+### Major Changes
+
+- [#31](https://github.com/ThisIsMissEm/adonisjs-atproto-oauth/pull/31) [`7f80188`](https://github.com/ThisIsMissEm/adonisjs-atproto-oauth/commit/7f80188f094b586719d837f7fc59b6e85ee409ca) Thanks [@ThisIsMissEm](https://github.com/ThisIsMissEm)! - Automatically modify `config/auth.ts` on configure
+
+  This removes the step of manually replacing the `sessionUserProvider` with `atprotoUserProvider` in `config/auth.ts` after configuring the package.
+
+  The import path has changed from `@thisismissem/adonisjs-atproto-oauth/auth/provider` to `@thisismissem/adonisjs-atproto-oauth/auth/user_provider`.
+
+  This also renames:
+  - `atprotoAuthProvider` to `atprotoUserProvider`
+  - `AtProtoUser` to `AtprotoUser`
+
+  In the next major version the previous names for the above will be removed.
+
+- [#31](https://github.com/ThisIsMissEm/adonisjs-atproto-oauth/pull/31) [`cdc63ff`](https://github.com/ThisIsMissEm/adonisjs-atproto-oauth/commit/cdc63ff348ab969ae1bd7791748a088bdaa9c77f) Thanks [@ThisIsMissEm](https://github.com/ThisIsMissEm)! - Fix OAuth Stores configuration for Adonis.js v7
+
+  This change allows you to bring your own [`SimpleStore`](https://github.com/bluesky-social/atproto/blob/main/packages/internal/simple-store/src/simple-store.ts) implementation, if you don't want to use Lucid, whilst also correcting how we were using Lucid.
+
+  Previously we created an `OAuthStore` for both `session` and `state` automatically in the provider, this caused things like hot module reloading to not work effectively, and caused a bunch of hard to debug typescript issues. It also caused issues with Adonis.js v7's new schema generation tooling.
+
+  ## Upgrading from v6
+
+  Replace the following lines in `config/atproto_oauth.ts`:
+
+  ```ts
+    // Models to store OAuth State and Sessions:
+    stateStore: OAuthState,
+    sessionStore: OAuthSession,
+  ```
+
+  With the following:
+
+  ```ts
+    // Models to store OAuth State and Sessions:
+    stores: {
+      states: lucidStateStore(() => import('#models/oauth_state')),
+      sessions: lucidSessionStore(() => import('#models/oauth_session')),
+    },
+  ```
+
+  Remove the imports for the models:
+
+  ```diff
+  - import OAuthState from '#models/oauth_state'
+  - import OAuthSession from '#models/oauth_session'
+  ```
+
+  Add the import from `@thisismissem/adonisjs-atproto-oauth` for both `lucidStateStore` and `lucidSessionStore`.
+
+### Minor Changes
+
+- [#31](https://github.com/ThisIsMissEm/adonisjs-atproto-oauth/pull/31) [`8dd6a04`](https://github.com/ThisIsMissEm/adonisjs-atproto-oauth/commit/8dd6a042844714482dd982de4601774f8671f7a2) Thanks [@ThisIsMissEm](https://github.com/ThisIsMissEm)! - Automatically configure generated controller for Inertia.js or standard hypertext requests
+
+  This adds better native support for Inertia.js to this package, as it has a specific way to do cross-site redirects.
+
+### Patch Changes
+
+- [#31](https://github.com/ThisIsMissEm/adonisjs-atproto-oauth/pull/31) [`2f9725b`](https://github.com/ThisIsMissEm/adonisjs-atproto-oauth/commit/2f9725b9d3e6728cea1f46d92ff7e3719a5579d2) Thanks [@ThisIsMissEm](https://github.com/ThisIsMissEm)! - Fix installation issue due to stubs missing
+
+  This was a bug introduced in 2.0.0, where the new bundler we started using rewrote code in an unexpected way, breaking the loading path for the `stubsRoot` when running configure.
+
+- [#31](https://github.com/ThisIsMissEm/adonisjs-atproto-oauth/pull/31) [`d69b034`](https://github.com/ThisIsMissEm/adonisjs-atproto-oauth/commit/d69b0346553e92f589125968ec8eca8e0d756444) Thanks [@ThisIsMissEm](https://github.com/ThisIsMissEm)! - Fix generated migrations having the `value` column as nullable
+
+  This was causing typescript issues in Adonis.js v7
+
+- [#31](https://github.com/ThisIsMissEm/adonisjs-atproto-oauth/pull/31) [`37721d0`](https://github.com/ThisIsMissEm/adonisjs-atproto-oauth/commit/37721d0262b8b66993b51ec1475314746d110ed4) Thanks [@ThisIsMissEm](https://github.com/ThisIsMissEm)! - Improve Redirect URI Configuration
+
+  Previously we needed the `config/atproto_oauth.ts` to contain at least one `redirect_uris` value in the metadata, even though this is unlikely to be changed from the default value (`/oauth/callback`).
+
+  Now we make `redirect_uris` optional in the metadata, and default it to `/oauth/callback`, giving one less thing to configure.
+
+- [#31](https://github.com/ThisIsMissEm/adonisjs-atproto-oauth/pull/31) [`8cf3f6d`](https://github.com/ThisIsMissEm/adonisjs-atproto-oauth/commit/8cf3f6d5aac4342408490885a836312750583a66) Thanks [@ThisIsMissEm](https://github.com/ThisIsMissEm)! - Default to installing the additional packages on configure
+
+- [#31](https://github.com/ThisIsMissEm/adonisjs-atproto-oauth/pull/31) [`dfdaaf8`](https://github.com/ThisIsMissEm/adonisjs-atproto-oauth/commit/dfdaaf85a36ce3fc38c5eab96f12a7ac293e0066) Thanks [@ThisIsMissEm](https://github.com/ThisIsMissEm)! - Support blank keys in jwks keyset
+
+  Previously, the `config/atproto_oauth.ts` file needed to have `jwks` commented out if you weren't using it in development (CIMD Service doesn't support jwks). This made using the same configuration for development and production more difficult.
+
+  Now you can leave that line commented in, and `undefined` values will be filtered out.
+
+  ```ts
+    jwks: [env.get('ATPROTO_OAUTH_JWT_PRIVATE_KEY')],
+  ```
+
+- [#31](https://github.com/ThisIsMissEm/adonisjs-atproto-oauth/pull/31) [`18bece8`](https://github.com/ThisIsMissEm/adonisjs-atproto-oauth/commit/18bece858f77f18f077883b4f0ab152e4cc59121) Thanks [@ThisIsMissEm](https://github.com/ThisIsMissEm)! - Add additional default properties to metadata
+
+  This adds the following properties to the `metadata` in `config/atproto_oauth.ts` by default:
+  - `client_uri`
+  - `scope` (defaults to `atproto`)
+
+  This also adds a few commented out, but recommended for production properties to the metadata:
+  - `logo_uri`
+  - `tos_uri`
+  - `policy_uri`
+
 ## 2.0.0
 
 ### Major Changes
