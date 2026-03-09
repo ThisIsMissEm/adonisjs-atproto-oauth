@@ -52,11 +52,8 @@ export default class AtProtoProvider {
     this.app.container.singleton('atproto.oauth.client', async () => {
       const config = await this.app.container.make('atproto.oauth.config')
       const logger = await this.app.container.make('logger')
-      const router = await this.app.container.make('router')
-      const sessionStore = new OAuthStore<OAuthSessionsModel, NodeSavedSession>(config.sessionStore)
-      const stateStore = new OAuthStore<OAuthStatesModel, NodeSavedState>(config.stateStore)
 
-      return new OAuthClient(this.app, router, logger, stateStore, sessionStore)
+      return new OAuthClient(this.app, logger, stateStore, sessionStore)
     })
   }
 

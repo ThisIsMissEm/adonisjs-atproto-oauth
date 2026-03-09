@@ -1,6 +1,6 @@
 import type { ContainerBindings } from '@adonisjs/core/types'
 import type { Application } from '@adonisjs/core/app'
-import type { Router } from '@adonisjs/core/http'
+import { urlFor } from '@adonisjs/core/services/url_builder'
 import type { Logger } from '@adonisjs/core/logger'
 import type {
   NodeSavedSessionStore,
@@ -27,7 +27,6 @@ export class OAuthClient {
 
   constructor(
     protected app: Application<ContainerBindings>,
-    protected router: Router,
     protected logger: Logger,
     protected stateStore: NodeSavedStateStore,
     protected sessionStore: NodeSavedSessionStore
@@ -38,7 +37,12 @@ export class OAuthClient {
   }
 
   private makeRoute(routeIdentifier: string): string {
-    return new URL(this.router.makeUrl(routeIdentifier), this.#publicUrl).toString()
+    return new URL(
+      // The route hasn't been defined yet:
+      // @ts-expect-error
+      urlFor(routeIdentifier),
+      this.#publicUrl
+    ).toString()
   }
 
   private async createKeyset(jwks: JwksConfig): Promise<Keyset<JoseKey> | undefined> {
@@ -84,6 +88,10 @@ export class OAuthClient {
   }
 
   private createRedirectUris(metadata: OAuthMetadata): [string, ...string[]] {
+    if (!metadata.redirect_uris) {
+      return [this.makeUrl('/oauth/callback')]
+    }
+
     return metadata.redirect_uris.map((redirectUri) => {
       if (redirectUri.startsWith('https://')) {
         return redirectUri

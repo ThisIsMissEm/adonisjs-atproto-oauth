@@ -13,7 +13,9 @@ export type OAuthProviderConfig = {
   stateStore: OAuthStatesModel
 }
 
-export type OAuthMetadata = Omit<OAuthClientMetadataInput, ProtectedMetadata>
+export type OAuthMetadata = Omit<OAuthClientMetadataInput, ProtectedMetadata | 'redirect_uris'> & {
+  redirect_uris?: OAuthClientMetadataInput['redirect_uris']
+}
 
 export type ProtectedMetadata =
   | 'grant_types'
