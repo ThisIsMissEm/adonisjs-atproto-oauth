@@ -28,7 +28,8 @@ export async function configure(command: Configure) {
   let shouldInstallPackages: boolean | undefined = command.parsedFlags.install
   if (shouldInstallPackages === undefined) {
     shouldInstallPackages = await command.prompt.confirm(
-      `Do you want to install additional packages required by "${packageName}"?`
+      `Do you want to install additional packages required by "${packageName}"?`,
+      { default: true }
     )
   }
 
