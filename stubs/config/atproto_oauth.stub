@@ -1,10 +1,17 @@
 {{{
   exports({ to: app.configPath('atproto_oauth.ts') })
 }}}
+
+{{#if useLucid }}
+import {
+  defineConfig,
+  lucidSessionStore,
+  lucidStateStore,
+} from '@thisismissem/adonisjs-atproto-oauth'
+{{#else}}
 import { defineConfig } from '@thisismissem/adonisjs-atproto-oauth'
+{{/if}}
 import env from '#start/env'
-import OAuthState from '#models/oauth_state'
-import OAuthSession from '#models/oauth_session'
 
 export default defineConfig({
   publicUrl: env.get('PUBLIC_URL'),
@@ -17,8 +24,17 @@ export default defineConfig({
   // For a confidential client, set this environment variable:
   // Empty values are ignored
   jwks: [env.get('ATPROTO_OAUTH_JWT_PRIVATE_KEY')],
-
+{{#if useLucid }}
   // Models to store OAuth State and Sessions:
-  stateStore: OAuthState,
-  sessionStore: OAuthSession,
+  stores: {
+    states: lucidStateStore(() => import('#models/oauth_state')),
+    sessions: lucidSessionStore(() => import('#models/oauth_session')),
+  },
+{{# else }}
+  // Models to store OAuth State and Sessions:
+  // See: https://atproto.com/guides/oauth-cli-tutorial#part-2-build-the-o-auth-client
+  stores: {
+    states: /* TODO */,
+    sessions: /* TODO */
+  },{{/if}}
 })

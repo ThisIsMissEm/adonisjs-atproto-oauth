@@ -1,11 +1,9 @@
 import type { ApplicationService } from '@adonisjs/core/types'
-import type { NodeSavedSession, NodeSavedState } from '@atproto/oauth-client-node'
-import type { OAuthSessionsModel, OAuthStatesModel, OAuthProviderConfig } from '../src/types.js'
+import type { OAuthProviderConfig } from '../src/types.js'
 import type { VineAtproto } from '../src/vine/define.js'
 
 import { RuntimeException } from '@adonisjs/core/exceptions'
 import { OAuthClient } from '../src/client.js'
-import { OAuthStore } from '../src/oauth_store.js'
 
 declare module '@vinejs/vine' {
   interface Vine {
@@ -40,9 +38,9 @@ export default class AtProtoProvider {
         )
       }
 
-      if (!config.sessionStore || !config.stateStore) {
+      if (!config.stores || !config.stores.sessions || !config.stores.states) {
         throw new RuntimeException(
-          'Invalid config exported from "config/atproto.ts" file. Missing sessionProvider or stateProvider'
+          'Invalid config exported from "config/atproto.ts" file. Missing correct `stores` provider'
         )
       }
 
@@ -53,7 +51,7 @@ export default class AtProtoProvider {
       const config = await this.app.container.make('atproto.oauth.config')
       const logger = await this.app.container.make('logger')
 
-      return new OAuthClient(this.app, logger, stateStore, sessionStore)
+      return new OAuthClient(this.app, logger, config.stores.states, config.stores.sessions)
     })
   }
 

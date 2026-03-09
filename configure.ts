@@ -32,6 +32,11 @@ export async function configure(command: Configure) {
     )
   }
 
+  const useLucid = await command.prompt.confirm(
+    `Do you want to use Lucid for storing OAuth state??`,
+    { default: true }
+  )
+
   const codemods = await command.createCodemods()
   const packagesToInstall: Packages = [
     { name: '@atproto-labs/simple-store', isDevDependency: false },
@@ -45,7 +50,9 @@ export async function configure(command: Configure) {
   }
 
   // Publish config file
-  await codemods.makeUsingStub(stubsRoot, 'config/atproto_oauth.stub', {})
+  await codemods.makeUsingStub(stubsRoot, 'config/atproto_oauth.stub', {
+    useLucid,
+  })
 
   // Add provider to rc file
   await codemods.updateRcFile((rcFile) => {
@@ -53,12 +60,7 @@ export async function configure(command: Configure) {
   })
 
   // Add migrations:
-  const shouldCreateMigrations = await command.prompt.confirm(
-    `Do you want to create the migrations required by "${packageName}"?`,
-    { default: false }
-  )
-
-  if (shouldCreateMigrations) {
+  if (useLucid) {
     await codemods.makeUsingStub(stubsRoot, 'migrations/oauth_sessions.stub', {
       entity: command.app.generators.createEntity('oauth_sessions'),
       migration: {
@@ -74,16 +76,16 @@ export async function configure(command: Configure) {
         fileName: `${new Date().getTime()}_create_oauth_states_table.ts`,
       },
     })
+
+    // Add models:
+    await codemods.makeUsingStub(stubsRoot, 'models/oauth_state.stub', {
+      entity: command.app.generators.createEntity('oauth_state'),
+    })
+
+    await codemods.makeUsingStub(stubsRoot, 'models/oauth_session.stub', {
+      entity: command.app.generators.createEntity('oauth_session'),
+    })
   }
-
-  // Add models:
-  await codemods.makeUsingStub(stubsRoot, 'models/oauth_state.stub', {
-    entity: command.app.generators.createEntity('oauth_state'),
-  })
-
-  await codemods.makeUsingStub(stubsRoot, 'models/oauth_session.stub', {
-    entity: command.app.generators.createEntity('oauth_session'),
-  })
 
   // Add controller:
   await codemods.makeUsingStub(stubsRoot, 'validators/oauth_validator.stub', {})
@@ -123,6 +125,9 @@ export async function configure(command: Configure) {
   const instructions = command.ui.instructions()
   instructions.heading('AT Protocol OAuth setup!')
   if (!shouldInstallPackages) instructions.add('Install the packages listed below')
+  if (!useLucid) {
+    instructions.add('Modify config/atproto_oauth.ts to have `stores` implementations')
+  }
   instructions.add('Run the migrations: node ace migration:run')
   instructions.add('Add your login form')
   instructions.render()
