@@ -133,7 +133,8 @@
     "dts": false,
     "treeshake": false,
     "sourcemaps": false,
-    "target": "esnext"
+    "target": "esnext",
+    "unbundle": true
   },
   "c8": {
     "reporter": [
