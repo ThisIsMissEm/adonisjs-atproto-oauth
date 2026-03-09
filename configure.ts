@@ -14,12 +14,16 @@
 
 import type Configure from '@adonisjs/core/commands/configure'
 import type { CodeTransformer } from '@adonisjs/assembler/code_transformer'
+import { existsSync } from 'node:fs'
 import { stubsRoot } from './stubs/main.ts'
 
 type Packages = { name: string; isDevDependency: boolean }[]
 
 export async function configure(command: Configure) {
   const packageName = '@thisismissem/adonisjs-atproto-oauth'
+
+  const inertiaConfigPath = command.app.configPath('inertia.ts')
+  const usingInertia = existsSync(inertiaConfigPath)
 
   /**
    * Prompt when `install` or `--no-install` flags are
@@ -92,6 +96,7 @@ export async function configure(command: Configure) {
   await codemods.makeUsingStub(stubsRoot, 'validators/oauth_validator.stub', {})
   await codemods.makeUsingStub(stubsRoot, 'controllers/oauth_controller.stub', {
     entity: command.app.generators.createEntity('oauth'),
+    usingInertia,
   })
 
   // Add the routes file:
