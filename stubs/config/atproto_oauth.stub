@@ -12,7 +12,6 @@ export default defineConfig({
     // If ATPROTO_OAUTH_CLIENT_ID is set, the client metadata will be fetched from that URL:
     client_id: env.get('ATPROTO_OAUTH_CLIENT_ID'),
     client_name: 'Some App',
-    redirect_uris: ['/oauth/callback'],
   },
 
   // For a confidential client, set this environment variable:
