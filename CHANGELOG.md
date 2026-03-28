@@ -1,5 +1,11 @@
 # @thisismissem/adonisjs-atproto-oauth
 
+## 3.0.2
+
+### Patch Changes
+
+- [#36](https://github.com/ThisIsMissEm/adonisjs-atproto-oauth/pull/36) [`48613d6`](https://github.com/ThisIsMissEm/adonisjs-atproto-oauth/commit/48613d6d4971555e2707688c5edec25699699836) Thanks [@ThisIsMissEm](https://github.com/ThisIsMissEm)! - Use schema generation for models now that it supports primary keys that aren't id
+
 ## 3.0.1
 
 ### Patch Changes
