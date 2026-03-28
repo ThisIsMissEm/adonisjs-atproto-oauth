@@ -1,6 +1,8 @@
 import type { AuthorizeOptions } from '@atproto/oauth-client-node'
+import type { AtIdentifierString, HandleString } from '@atproto/lex'
 import type { HttpContext } from '@adonisjs/core/http'
 import type { OAuthClient } from './client.js'
+import type { OAuthResolvedIdentity } from './types.ts'
 import { AtprotoUser } from './atproto_user.js'
 
 export class OAuthContext {
@@ -60,6 +62,33 @@ export class OAuthContext {
     return {
       user: new AtprotoUser(result.session),
       state: result.state,
+    }
+  }
+
+  async resolveIdentity(
+    identity: AtIdentifierString,
+    signal?: AbortSignal
+  ): Promise<OAuthResolvedIdentity | null> {
+    const result = await this.oauth.client.oauthResolver
+      .resolveFromIdentity(identity, { signal })
+      .catch((err) => {
+        this.ctx.logger.error(
+          err,
+          'Failed to resolve authorization information for identity: %s',
+          identity
+        )
+        return null
+      })
+
+    if (!result) {
+      return null
+    }
+
+    return {
+      pds: result.pds,
+      did: result.identityInfo.did,
+      handle: result.identityInfo.handle as HandleString,
+      authorizationServer: new URL(result.metadata.issuer),
     }
   }
 

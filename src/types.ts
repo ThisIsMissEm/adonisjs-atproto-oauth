@@ -1,5 +1,6 @@
 import type { LucidModel } from '@adonisjs/lucid/types/model'
 import type {
+  AtprotoDid,
   NodeSavedSession,
   NodeSavedState,
   OAuthClientMetadataInput,
@@ -7,6 +8,7 @@ import type {
 import { type Secret } from '@poppinss/utils'
 import type { OAuthStore } from './oauth_store.ts'
 import type { SimpleStore } from '@atproto-labs/simple-store'
+import type { HandleString } from '@atproto/lex'
 
 export type OAuthStateModel = LucidModel & {
   new (): {
@@ -41,6 +43,13 @@ export type OAuthProviderConfig = {
 
 export type OAuthMetadata = Omit<OAuthClientMetadataInput, ProtectedMetadata | 'redirect_uris'> & {
   redirect_uris?: OAuthClientMetadataInput['redirect_uris']
+}
+
+export type OAuthResolvedIdentity = {
+  pds: URL
+  did: AtprotoDid
+  handle: HandleString
+  authorizationServer: URL
 }
 
 export type ProtectedMetadata =
