@@ -66,11 +66,12 @@ export async function configure(command: Configure) {
 
   // Add migrations:
   if (useLucid) {
+    const timestamp = new Date().getTime()
     await codemods.makeUsingStub(stubsRoot, 'migrations/oauth_sessions.stub', {
       entity: command.app.generators.createEntity('oauth_sessions'),
       migration: {
         folder: 'database/migrations',
-        fileName: `${new Date().getTime()}_create_oauth_sessions_table.ts`,
+        fileName: `${timestamp}_create_oauth_sessions_table.ts`,
       },
     })
 
@@ -78,16 +79,16 @@ export async function configure(command: Configure) {
       entity: command.app.generators.createEntity('oauth_states'),
       migration: {
         folder: 'database/migrations',
-        fileName: `${new Date().getTime()}_create_oauth_states_table.ts`,
+        fileName: `${timestamp + 1}_create_oauth_states_table.ts`,
       },
     })
 
     // Add models:
-    await codemods.makeUsingStub(stubsRoot, 'models/oauth_state.stub', {
+    await codemods.makeUsingStub(stubsRoot, 'models/model.stub', {
       entity: command.app.generators.createEntity('oauth_state'),
     })
 
-    await codemods.makeUsingStub(stubsRoot, 'models/oauth_session.stub', {
+    await codemods.makeUsingStub(stubsRoot, 'models/model.stub', {
       entity: command.app.generators.createEntity('oauth_session'),
     })
   }
