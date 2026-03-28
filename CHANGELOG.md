@@ -1,5 +1,11 @@
 # @thisismissem/adonisjs-atproto-oauth
 
+## 3.0.1
+
+### Patch Changes
+
+- [#34](https://github.com/ThisIsMissEm/adonisjs-atproto-oauth/pull/34) [`f409451`](https://github.com/ThisIsMissEm/adonisjs-atproto-oauth/commit/f4094510fdfe1779bab33628e2e86866df503b34) Thanks [@ThisIsMissEm](https://github.com/ThisIsMissEm)! - Add resolveIdentity to OAuthContext to allow validating PDS from OAuth Controller
+
 ## 3.0.0
 
 ### Major Changes
