@@ -1,0 +1,20 @@
+{{#var modelName = generators.modelName(entity.name)}}
+{{#var modelFileName = generators.modelFileName(entity.name)}}
+{{{
+  exports({
+    to: app.modelsPath(entity.path, modelFileName)
+  })
+}}}
+import { BaseModel, column } from '@adonisjs/lucid/orm'
+import { DateTime } from 'luxon'
+
+export default class {{ modelName }} extends BaseModel {
+  @column({ isPrimary: true })
+  declare sub: string
+
+  @column()
+  declare value: string
+
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
+}
