@@ -12,6 +12,10 @@ export class AtprotoUser extends Macroable {
     return this.session.did
   }
 
+  async getTokenInfo() {
+    return await this.session.getTokenInfo(false)
+  }
+
   get client() {
     if (this.#client) return this.#client
     this.#client = new Client(this.session)
