@@ -74,7 +74,7 @@
     "@arethetypeswrong/cli": "^0.18.2",
     "@atproto-labs/simple-store": "^0.3.0",
     "@atproto/jwk-jose": "^0.1.11",
-    "@atproto/lex": "^0.0.20",
+    "@atproto/lex": "^0.0.23",
     "@atproto/oauth-client-node": "^0.3.17",
     "@atproto/syntax": "^0.5.0",
     "@changesets/changelog-github": "^0.6.0",
@@ -102,7 +102,7 @@
     "@adonisjs/lucid": "^22.1.0",
     "@atproto-labs/simple-store": "^0.3.0",
     "@atproto/jwk-jose": "^0.1.11",
-    "@atproto/lex": "^0.0.20",
+    "@atproto/lex": "^0.0.23",
     "@atproto/oauth-client-node": "^0.3.17",
     "@vinejs/vine": "^4.3.0",
     "luxon": "^3.7.2"
