@@ -1,5 +1,23 @@
 # @thisismissem/adonisjs-atproto-oauth
 
+## 3.0.3
+
+### Patch Changes
+
+- [#39](https://github.com/ThisIsMissEm/adonisjs-atproto-oauth/pull/39) [`d91648a`](https://github.com/ThisIsMissEm/adonisjs-atproto-oauth/commit/d91648a14a9d87b8ace997787f7f10c57a2b66e7) Thanks [@ThisIsMissEm](https://github.com/ThisIsMissEm)! - Revert "Use schema generation now that Lucid supports non-ID primary keys"
+
+- [#38](https://github.com/ThisIsMissEm/adonisjs-atproto-oauth/pull/38) [`dcb173f`](https://github.com/ThisIsMissEm/adonisjs-atproto-oauth/commit/dcb173fb775ac838cdb8b3c95e30eefe60012a3c) Thanks [@ThisIsMissEm](https://github.com/ThisIsMissEm)! - Fix module resolution for typescript
+
+- [#40](https://github.com/ThisIsMissEm/adonisjs-atproto-oauth/pull/40) [`71ea85a`](https://github.com/ThisIsMissEm/adonisjs-atproto-oauth/commit/71ea85a0ee87c19de1612425992b9c56957d6351) Thanks [@ThisIsMissEm](https://github.com/ThisIsMissEm)! - Upgrade @atproto/lex to 0.0.23
+
+- [#33](https://github.com/ThisIsMissEm/adonisjs-atproto-oauth/pull/33) [`e3ac465`](https://github.com/ThisIsMissEm/adonisjs-atproto-oauth/commit/e3ac4651e64c50f6efb5d0a9f3e7cc9065f441fb) Thanks [@ThisIsMissEm](https://github.com/ThisIsMissEm)! - Add method to get the current access token's info
+
+  This adds the `getTokenInfo` method to the `auth.user` (`AtprotoUser`)
+
+- [#40](https://github.com/ThisIsMissEm/adonisjs-atproto-oauth/pull/40) [`b72d7db`](https://github.com/ThisIsMissEm/adonisjs-atproto-oauth/commit/b72d7db5c6bde5bff20695c4d2fd2bdec857a62d) Thanks [@ThisIsMissEm](https://github.com/ThisIsMissEm)! - Add handleUsername validator, for validating just the username segment of a handle string
+
+  This is useful when you're building a service that is for a specific handle domain, and you want to allow sign-in with just the username e.g., `emelia` instead of `emelia.eurosky.social`
+
 ## 3.0.2
 
 ### Patch Changes
