@@ -10,7 +10,7 @@ import { webUriSchema } from '@atproto/oauth-client-node'
 import vine from '@vinejs/vine'
 import type { FieldContext } from '@vinejs/vine/types'
 
-function atString(value: unknown, field: FieldContext, rule: string) {
+function atString(value: unknown, field: FieldContext, rule: string): value is string {
   if (!field.isDefined) {
     return false
   }
@@ -30,7 +30,7 @@ export const isAtUriRule = vine.createRule((value, _, field) => {
     return false
   }
 
-  if (!isAtUriString(value as string)) {
+  if (!isAtUriString(value)) {
     field.report(
       'The {{ field }} field value must be a valid AT Protocol AT URI string',
       ruleName,
@@ -49,7 +49,7 @@ export const isAtIdentifierRule = vine.createRule((value, _, field) => {
     return false
   }
 
-  if (!isAtIdentifierString(value as string)) {
+  if (!isAtIdentifierString(value)) {
     field.report(
       'The {{ field }} field value must be a valid AT Protocol AT Identifier string',
       ruleName,
@@ -68,9 +68,34 @@ export const isHandleRule = vine.createRule((value, _, field) => {
     return false
   }
 
-  if (!isHandleString(value as string)) {
+  if (!isHandleString(value)) {
+    field.report('The {{ field }} field value must be a valid AT Protocol handle', ruleName, field)
+    return false
+  }
+
+  return true
+})
+
+export const isHandleUsernameRule = vine.createRule((value, _, field) => {
+  const ruleName = 'at-handle-username'
+
+  if (!atString(value, field, ruleName)) {
+    return false
+  }
+
+  if (value.includes('.')) {
     field.report(
-      'The {{ field }} field value must be a valid AT Protocol handle string',
+      'The {{ field }} field value must be a valid username for an AT Protocol handle',
+      ruleName,
+      field
+    )
+    return false
+  }
+
+  // We only have a username portion, so append .pds.example to create a "full" handle:
+  if (!isHandleString(value + '.pds.example')) {
+    field.report(
+      'The {{ field }} field value must be a valid username for an AT Protocol handle',
       ruleName,
       field
     )
@@ -87,7 +112,7 @@ export const isDidRule = vine.createRule((value, _, field) => {
     return false
   }
 
-  if (!isDidString(value as string)) {
+  if (!isDidString(value)) {
     field.report(
       'The {{ field }} field value must be a valid AT Protocol DID string',
       ruleName,
@@ -106,7 +131,7 @@ export const isServiceRule = vine.createRule((value, _, field) => {
     return false
   }
 
-  if (!URL.canParse(value as string)) {
+  if (!URL.canParse(value)) {
     field.report('The {{ field }} field value must be a valid URL string', ruleName, field)
     return false
   }
@@ -130,7 +155,7 @@ export const isDatetimeRule = vine.createRule((value, _, field) => {
     return false
   }
 
-  if (!isDatetimeString(value as string)) {
+  if (!isDatetimeString(value)) {
     field.report(
       'The {{ field }} field value must be a valid AT Protocol Datetime string',
       ruleName,
@@ -149,7 +174,7 @@ export const isLanguageRule = vine.createRule((value, _, field) => {
     return false
   }
 
-  if (!isLanguageString(value as string)) {
+  if (!isLanguageString(value)) {
     field.report(
       'The {{ field }} field value must be a valid AT Protocol Language string',
       ruleName,

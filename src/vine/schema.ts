@@ -17,6 +17,7 @@ import {
   isDatetimeRule,
   isDidRule,
   isHandleRule,
+  isHandleUsernameRule,
   isLanguageRule,
   isServiceRule,
 } from './rules.js'
@@ -107,6 +108,30 @@ export class VineAtprotoHandle extends BaseLiteralType<string, HandleString, Han
 
   clone() {
     return new VineAtprotoHandle(this.cloneOptions(), this.cloneValidations()) as this
+  }
+}
+
+export class VineAtprotoHandleUsername extends BaseLiteralType<string, string, string> {
+  [symbols.SUBTYPE] = `atproto.handleUsername`;
+  [symbols.UNIQUE_NAME] = `atproto.handleUsername`;
+
+  // Required for unionOfTypes
+  [symbols.IS_OF_TYPE] = (value: unknown) => {
+    return (
+      typeof value === 'string' &&
+      !value.includes('.') &&
+      !value.startsWith('http:') &&
+      !value.startsWith('https:')
+    )
+  }
+
+  constructor(options?: FieldOptions, validations?: Validation<any>[]) {
+    super(options, validations || [])
+    this.dataTypeValidator = isHandleUsernameRule()
+  }
+
+  clone() {
+    return new VineAtprotoHandleUsername(this.cloneOptions(), this.cloneValidations()) as this
   }
 }
 

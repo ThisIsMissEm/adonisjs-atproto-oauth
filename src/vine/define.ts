@@ -3,6 +3,7 @@ import {
   VineAtprotoDatetime,
   VineAtprotoDid,
   VineAtprotoHandle,
+  VineAtprotoHandleUsername,
   VineAtprotoIdentifier,
   VineAtprotoLanguage,
   VineAtprotoService,
@@ -13,6 +14,7 @@ export type VineAtproto = {
   identifier(): VineAtprotoIdentifier
   did(): VineAtprotoDid
   handle(): VineAtprotoHandle
+  handleUsername(): VineAtprotoHandleUsername
   service(): VineAtprotoService
   atUri(): VineAtprotoAtUri
   datetime(): VineAtprotoDatetime
@@ -24,6 +26,7 @@ export function defineVineAtProto() {
     identifier: () => new VineAtprotoIdentifier(),
     did: () => new VineAtprotoDid(),
     handle: () => new VineAtprotoHandle(),
+    handleUsername: () => new VineAtprotoHandleUsername(),
     service: () => new VineAtprotoService(),
     atUri: () => new VineAtprotoAtUri(),
     datetime: () => new VineAtprotoDatetime(),
