@@ -1,5 +1,11 @@
 # @thisismissem/adonisjs-atproto-oauth
 
+## 3.0.4
+
+### Patch Changes
+
+- [#43](https://github.com/ThisIsMissEm/adonisjs-atproto-oauth/pull/43) [`33493f5`](https://github.com/ThisIsMissEm/adonisjs-atproto-oauth/commit/33493f5483c2a41e113e48743613d8515ae0f3bd) Thanks [@ThisIsMissEm](https://github.com/ThisIsMissEm)! - Improve compatability of peer deps
+
 ## 3.0.3
 
 ### Patch Changes
